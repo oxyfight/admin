@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Dashboard - First Aid & CPR 2026</title>
     
-    <!-- CSS Dependencies -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,7 +26,7 @@
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .nav-pills .nav-link { color: #64748b; border-radius: 10px; font-weight: 600; }
         .nav-pills .nav-link.active { background-color: var(--primary); }
-        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; }
+        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-block; }
         .loader { display: none; text-align: center; padding: 20px; }
         
         /* Scanner Style */
@@ -48,9 +47,6 @@
 </head>
 <body>
 
-<!-- ======================================================================== -->
-<!-- 1. หน้าต่างสำหรับการเข้าสู่ระบบ (LOGIN INTERFACE) -->
-<!-- ======================================================================== -->
 <div id="authContainer">
     <div class="login-card">
         <div class="text-center mb-4">
@@ -72,9 +68,6 @@
     </div>
 </div>
 
-<!-- ======================================================================== -->
-<!-- 2. แผงควบคุมระบบหล้งบ้าน (MAIN DASHBOARD INTERFACE) -->
-<!-- ======================================================================== -->
 <div id="dashboardContainer" style="display: none;">
     <nav class="navbar navbar-dark shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
@@ -93,7 +86,7 @@
         <ul class="nav nav-pills nav-fill mb-4 p-1 bg-white rounded-3 shadow-sm" id="staffTab" role="tablist">
             <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#checkinTab"><i class="fas fa-qrcode me-1"></i> สแกนลงชื่อ</button>
-             desert</li>
+            </li>
             <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#reportTab" onclick="loadSessionsForReport()"><i class="fas fa-list me-1"></i> รายชื่อ</button>
             </li>
@@ -103,7 +96,6 @@
         </ul>
 
         <div class="tab-content">
-            <!-- 2.1 หน้าลงชื่อ (Check-in/Out) -->
             <div class="tab-pane fade show active" id="checkinTab">
                 <div class="card mb-3 p-4 border-0 bg-white shadow-sm">
                     <h6 class="fw-bold text-muted mb-2 text-center">1. เลือกระบบที่ต้องการ</h6>
@@ -136,14 +128,13 @@
                 <div class="card p-4 border-0 shadow-sm">
                     <h6 class="fw-bold text-muted mb-3">พิมพ์รหัสด้วยตัวเอง (Manual)</h6>
                     <div class="input-group">
-                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light" placeholder="REG-XXXXX">
+                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light" placeholder="รหัสลงทะเบียน 6 หลัก">
                         <button class="btn btn-primary px-4" onclick="processManualInput()"><i class="fas fa-paper-plane"></i></button>
                     </div>
                     <div class="loader" id="searchLoader"><div class="spinner-border text-primary"></div></div>
                 </div>
             </div>
 
-            <!-- 2.2 หน้าดูรายชื่อ (Report) -->
             <div class="tab-pane fade" id="reportTab">
                 <div class="card p-3 shadow-sm border-0">
                     <div class="mb-3">
@@ -156,10 +147,11 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ชื่อ-นามสกุล</th>
-                                    <th>รหัสลงทะเบียน</th>
-                                    <th>เบอร์โทรศัพท์</th>
-                                    <th>สถานะเข้าอบรม</th>
+                                    <th width="80" class="text-center">ลำดับ</th>
+                                    <th>ชื่อ - นามสกุล (บนใบประกาศ)</th>
+                                    <th width="100" class="text-center">รหัส</th>
+                                    <th width="180" class="text-center">สถานะปัจจุบัน</th>
+                                    <th width="240" class="text-center">การจัดการ</th>
                                 </tr>
                             </thead>
                             <tbody id="participantList"></tbody>
@@ -168,7 +160,6 @@
                 </div>
             </div>
 
-            <!-- 2.3 หน้าตั้งค่า (Config) -->
             <div class="tab-pane fade" id="configTab">
                 <div class="card p-3 shadow-sm border-0 mb-4 bg-light">
                     <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>เพิ่มรอบการอบรมใหม่</h6>
@@ -207,31 +198,29 @@
     </div>
 </div>
 
-<!-- JS Dependencies -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 
-<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
     // ⚙️ ตั้งค่าการเชื่อมต่อ API ของระบบ
     const SUPABASE_URL = "https://knfhgytkfshdmfdieczx.supabase.co"; 
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuZmhneXRrZnNoZG1mZGllY3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDI4ODUsImV4cCI6MjA5NDQxODg4NX0.NnYLZB5agt5wjLs2vn62K5v9LnvO01BV3iCJhh-QRTE"; 
-    const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbw5ea5gkA-AcRg_rJg7AI3Y5DmxwIwD1gX8-RAlQknkJ-0he8EwejxeCAWMuNyyFpgXuw/exec";
+    const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbybDrwPwdjzpdrg_qTJ7Em8B4x-lFcPPCF871VE9siziL4xee_Aewotgn-CtY9_lNF-/exec";
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // 💥 เปลี่ยนชื่อตัวแปรเป็น supabaseClient เพื่อหลบการซ้อนทับระบบ Lib หลัก
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let html5QrCode; 
     let isProcessing = false;
 
     // ตรวจสอบ Session การล็อกอินอัตโนมัติเมื่อเปิดหน้าเว็บ
     window.addEventListener('DOMContentLoaded', async () => {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await supabaseClient.auth.getSession();
         toggleAppView(session);
         
-        // เฝ้าติดตามการเปลี่ยนแปลงสถานะการล็อกอิน
-        supabase.auth.onAuthStateChange((_event, session) => {
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
             toggleAppView(session);
         });
     });
@@ -257,7 +246,7 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเข้าสู่ระบบ...';
 
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) {
             Swal.fire('ล็อกอินล้มเหลว', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือยังไม่ลงทะเบียนบัญชี', 'error');
             btn.disabled = false;
@@ -266,7 +255,7 @@
     }
 
     async function handleLogout() {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
     }
 
     // --- 1. ระบบเครื่องสแกนคิวอาร์โค้ด ---
@@ -295,6 +284,7 @@
         }
     }
 
+    // สแกน QR สำเร็จ
     function onScanSuccess(decodedText) {
         if(isProcessing) return; 
         document.getElementById('searchInput').value = decodedText;
@@ -313,13 +303,12 @@
     async function executeCheckInAction(registrationId) {
         isProcessing = true;
         showLoader('searchLoader', true);
-        const selectedMode = document.querySelector('input[name="scanMode"]:checked').value; // IN หรือ OUT
+        const selectedMode = document.querySelector('input[name="scanMode"]:checked').value; 
         const resultDiv = document.getElementById('actionResult');
         resultDiv.style.display = 'none';
 
         try {
-            // ค้นหาข้อมูลรายชื่อจาก รหัสลงทะเบียน ใน Supabase ก่อน
-            const { data: user, error: fetchError } = await supabase
+            const { data: user, error: fetchError } = await supabaseClient
                 .from('registrations')
                 .select('*, sessions(name)')
                 .eq('id', registrationId)
@@ -335,19 +324,17 @@
                 updateField = { is_checked_in: true, checked_in_at: new Date() };
                 alertMsg = `เช็คอินสำเร็จ! คุณ ${user.prefix}${user.full_name}`;
             } else {
-                updateField = { is_checked_in: false, checked_in_at: null };
+                updateField = { is_checked_in: false, checked_in_at: null, certificate_url: null, is_cert_sent: false };
                 alertMsg = `ยกเลิกสถานะเช็คอินสำเร็จ! คุณ ${user.prefix}${user.full_name}`;
             }
 
-            // บันทึกปรับปรุงสถานะลง Supabase หลัก
-            const { error: updateError } = await supabase
+            const { error: updateError } = await supabaseClient
                 .from('registrations')
                 .update(updateField)
                 .eq('id', registrationId);
 
             if (updateError) throw updateError;
 
-            // 🚀 TRIGGER POINT: หากเป็นโหมด "เช็คอิน" ให้ส่งข้อมูลต่อไปที่ Google Sheet ด้วยทันที
             if(selectedMode === "IN") {
                 sendDataToGoogleSheet(user);
             }
@@ -367,11 +354,10 @@
         }
     }
 
-    // ฟังก์ชันยิงข้ามแพลตฟอร์มไปหา Google Sheets สำหรับสั่ง Automation ออกใบประกาศ
     async function sendDataToGoogleSheet(userData) {
         try {
             const formData = new URLSearchParams({
-                action: "checkInSuccess", // ตั้งชื่อแอคชันส่งไปให้ doPost ของกูเกิลสคริปต์กรองตรวจจับ
+                action: "checkInSuccess", 
                 id: userData.id,
                 prefix: userData.prefix,
                 fullName: userData.full_name,
@@ -379,19 +365,16 @@
                 email: userData.email,
                 sessionName: userData.sessions.name
             });
-            
-            // ใช้โหมด no-cors เพื่อเลี่ยงปัญหา Cross-Origin จากการยิงข้ามคลาวด์ตรงๆ ไปสคริปต์
             await fetch(GOOGLE_SHEET_API, { method: 'POST', mode: 'no-cors', body: formData });
-            console.log("ส่งข้อมูลสแกนหน้างานเข้าสู่ระบบ Google Sheet ใบประกาศเรียบร้อยแล้ว");
         } catch (err) {
-            console.error("เชื่อมต่อระบบใบประกาศใน Google Sheet ไม่สำเร็จ:", err);
+            console.error(err);
         }
     }
 
-    // --- 3. ระบบแสดงรายงานรายชื่อแยกตามรอบ (REPORT SYSTEM) ---
+    // --- 3. ระบบแสดงรายงานรายชื่อแยกตามรอบ (ถอดแบบรูปที่ 2 🌟) ---
     async function loadSessionsForReport() {
         const sel = document.getElementById('reportSessionSelect');
-        const { data: sessions, error } = await supabase.from('sessions').select('*').order('id', { ascending: true });
+        const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
         if (error) return;
 
         sel.innerHTML = '<option value="">-- เลือกรอบอบรม --</option>';
@@ -402,25 +385,93 @@
         const sessionId = document.getElementById('reportSessionSelect').value;
         if(!sessionId) return;
         const tbody = document.getElementById('participantList');
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">กำลังค้นหารายชื่อ...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">กำลังค้นหารายชื่อ...</td></tr>';
         
-        const { data: list, error } = await supabase
+        const { data: list, error } = await supabaseClient
             .from('registrations')
             .select('*')
             .eq('session_id', sessionId)
             .order('created_at', { ascending: true });
 
-        if(error) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>'; return; }
-        
+        if(error) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>'; return; }
         tbody.innerHTML = '';
-        if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">ยังไม่มีรายชื่อผู้สมัครในรอบนี้</td></tr>'; return; }
+        if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">ยังไม่มีรายชื่อผู้สมัครในรอบนี้</td></tr>'; return; }
 
-        list.forEach(row => {
-            const status = row.is_checked_in 
-                ? '<span class="status-badge bg-success text-white"><i class="fas fa-check me-1"></i>เข้าอบรมแล้ว</span>' 
-                : '<span class="status-badge bg-secondary text-white">ยังไม่แสดงตัว</span>';
-            tbody.innerHTML += `<tr><td><b>${row.prefix}${row.full_name}</b></td><td><code class="text-dark">${row.id}</code></td><td>${row.phone}</td><td>${status}</td></tr>`;
+        list.forEach((row, index) => {
+            let statusBadge = "";
+            let actionButtons = "";
+
+            // ตรรกะคัดแยก Badge สถานะปัจจุบันตามรูปที่ 2
+            if (!row.is_checked_in || !row.certificate_url) {
+                statusBadge = `<span class="status-badge bg-secondary text-white">ยังไม่เช็คอิน</span>`;
+                actionButtons = `
+                    <button class="btn btn-sm btn-outline-secondary disabled rounded-pill px-3 me-1" disabled><i class="fas fa-eye"></i> ดูตัวอย่าง</button>
+                    <button class="btn btn-sm btn-outline-secondary disabled rounded-pill px-3" disabled><i class="fas fa-envelope"></i> ส่งอีเมล</button>`;
+            } else if (row.certificate_url && !row.is_cert_sent) {
+                statusBadge = `<span class="status-badge text-dark" style="background-color: #fff9eb; color: #b45309 !important; border: 1px solid #fde68a;">สร้างไฟล์แล้ว (รอส่ง)</span>`;
+                actionButtons = `
+                    <a href="${row.certificate_url}" target="_blank" class="btn btn-sm btn-info text-white rounded-pill px-3 me-1"><i class="fas fa-eye"></i> ดูตัวอย่าง</a>
+                    <button id="btn_send_${row.id}" class="btn btn-sm btn-danger rounded-pill px-3" onclick="sendCertEmail('${row.id}', '${row.prefix}${row.full_name}', '${row.email}')"><i class="fas fa-envelope"></i> ส่งอีเมล</button>`;
+            } else if (row.is_cert_sent) {
+                statusBadge = `<span class="status-badge text-dark" style="background-color: #f0fdf4; color: #166534 !important; border: 1px solid #bbf7d0;">ส่งสำเร็จ ✅</span>`;
+                actionButtons = `
+                    <a href="${row.certificate_url}" target="_blank" class="btn btn-sm btn-info text-white rounded-pill px-3 me-1"><i class="fas fa-eye"></i> ดูตัวอย่าง</a>
+                    <button id="btn_send_${row.id}" class="btn btn-sm btn-success rounded-pill px-3" onclick="sendCertEmail('${row.id}', '${row.prefix}${row.full_name}', '${row.email}')"><i class="fas fa-paper-plane"></i> ส่งซ้ำ</button>`;
+            }
+
+            tbody.innerHTML += `
+                <tr>
+                    <td class="text-center fw-bold text-muted">${index + 1}</td>
+                    <td><b>${row.prefix}${row.full_name}</b></td>
+                    <td class="text-center"><code class="text-dark fw-bold">${row.id}</code></td>
+                    <td class="text-center">${statusBadge}</td>
+                    <td class="text-center">${actionButtons}</td>
+                </tr>`;
         });
+    }
+
+    // 🚀 ฟังก์ชันกดส่งอีเมลใบประกาศนียบัตรแยกรายบุคคล
+    async function sendCertEmail(regId, fullName, email) {
+        const btn = document.getElementById(`btn_send_${regId}`);
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> ส่ง...';
+        
+        try {
+            // ดึงลิงก์ใบประกาศล่าสุดและรอบอบรมเพื่อความแม่นยำ
+            const { data: user, error: fetchErr } = await supabaseClient
+                .from('registrations')
+                .select('certificate_url, sessions(name)')
+                .eq('id', regId)
+                .single();
+                
+            if (fetchErr || !user.certificate_url) throw new Error("ไม่พบไฟล์ใบประกาศในระบบหลัก");
+            
+            // สั่งยิงไปที่ GAS แผนงานข้อที่ 4 (สั่งกระจายอีเมล HTML แนบลิงก์ดาวน์โหลด)
+            const formData = new URLSearchParams({
+                action: "sendCertEmail",
+                id: regId,
+                fullName: fullName,
+                email: email,
+                sessionName: user.sessions.name,
+                certUrl: user.certificate_url
+            });
+            
+            await fetch(GOOGLE_SHEET_API, { method: 'POST', mode: 'no-cors', body: formData });
+            
+            // อัปเดตแฟล็กสถานะความสำเร็จในฐานข้อมูล Supabase
+            await supabaseClient
+                .from('registrations')
+                .update({ is_cert_sent: true })
+                .eq('id', regId);
+                
+            Swal.fire('สำเร็จ', 'จัดส่งอีเมลใบประกาศนียบัตรให้ผู้เรียนเรียบร้อยแล้ว', 'success');
+            loadParticipants(); // รีโหลดตาราง
+        } catch (err) {
+            Swal.fire('ข้อผิดพลาด', err.message, 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
     }
 
     // --- 4. ระบบตั้งค่ารอบการอบรม (CONFIG & SETUP MANAGEMENT) ---
@@ -428,7 +479,7 @@
         const tbody = document.getElementById('configTableBody');
         tbody.innerHTML = '<tr><td colspan="5" class="text-center">กำลังโหลดรายการคอนฟิก...</td></tr>';
         
-        const { data: sessions, error } = await supabase.from('sessions').select('*').order('id', { ascending: true });
+        const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
         if (error) return;
         
         tbody.innerHTML = '';
@@ -459,7 +510,7 @@
         const max = document.getElementById('newSessionMax').value;
         if(!name || !max) { Swal.fire('ข้อมูลไม่ครบ', 'กรุณาระบุชื่อรอบและที่นั่งให้ครบถ้วน', 'warning'); return; }
 
-        const { error } = await supabase.from('sessions').insert([{ name, max_seats: parseInt(max), available_seats: parseInt(max) }]);
+        const { error } = await supabaseClient.from('sessions').insert([{ name, max_seats: parseInt(max), available_seats: parseInt(max) }]);
         if(!error) {
             Swal.fire('สำเร็จ', 'ทำการเปิดรอบการอบรมหลักสูตรใหม่เรียบร้อย', 'success');
             document.getElementById('newSessionName').value = '';
@@ -470,20 +521,17 @@
 
     async function updateSeatsQuota(id) {
         const newMax = parseInt(document.getElementById(`max_${id}`).value);
-        
-        // คำนวณยอดลงทะเบียนเดิม เพื่อหาที่นั่งว่างคงเหลือที่ถูกต้องในฐานข้อมูลใหม่
-        const { count, error: countErr } = await supabase.from('registrations').select('*', { count: 'exact', head: true }).eq('session_id', id);
+        const { count, error: countErr } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('session_id', id);
         if(countErr) return;
 
         const newAvailable = newMax - count;
-
-        const { error } = await supabase.from('sessions').update({ max_seats: newMax, available_seats: newAvailable }).eq('id', id);
+        const { error } = await supabaseClient.from('sessions').update({ max_seats: newMax, available_seats: newAvailable }).eq('id', id);
         if(!error) Swal.fire('บันทึกสำเร็จ', 'อัปเดตจำนวนและโควตาที่นั่งคงเหลือใหม่เรียบร้อย', 'success');
         else Swal.fire('ข้อผิดพลาด', 'ไม่สามารถแก้ไขข้อมูลได้', 'error');
     }
 
     async function toggleSessionStatus(id, newStatus) {
-        const { error } = await supabase.from('sessions').update({ status: newStatus }).eq('id', id);
+        const { error } = await supabaseClient.from('sessions').update({ status: newStatus }).eq('id', id);
         if(!error) loadConfig();
     }
 
@@ -499,7 +547,7 @@
         });
 
         if (newName) {
-            const { error } = await supabase.from('sessions').update({ name: newName }).eq('id', id);
+            const { error } = await supabaseClient.from('sessions').update({ name: newName }).eq('id', id);
             if(!error) { Swal.fire('สำเร็จ', 'ปรับปรุงข้อมูลชื่อเรียบร้อยแล้ว', 'success'); loadConfig(); }
         }
     }
@@ -516,7 +564,7 @@
         });
 
         if (res.isConfirmed) {
-            const { error } = await supabase.from('sessions').delete().eq('id', id);
+            const { error } = await supabaseClient.from('sessions').delete().eq('id', id);
             if(!error) { Swal.fire('ลบรายการแล้ว', 'ทำลายข้อมูลรอบและรายชื่อผู้ลงทะเบียนถาวรเสร็จสิ้น', 'success'); loadConfig(); }
         }
     }

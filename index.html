@@ -10,7 +10,7 @@
     <style>
         :root { --primary: #071f54; --accent: #1976d2; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; color: #1e293b; }
-        .navbar { background: linear-gradient(135deg, var(--primary), var(--accent)); padding: 10px 0; }
+        .navbar { background: linear-gradient(135deg, #051336, var(--accent)); padding: 12px 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .nav-pills .nav-link { color: #64748b; border-radius: 10px; font-weight: 600; }
         .nav-pills .nav-link.active { background-color: var(--primary); }
@@ -28,8 +28,8 @@
 <div id="authContainer">
     <div class="login-card">
         <div class="text-center mb-4">
-            <img src="https://cppqbctiybszcneqawjw.supabase.co/storage/v1/object/public/PIC/Logo-gold.png" alt="Logo" style="height: 60px;">
-            <h4 class="fw-bold text-primary mt-3">Staff Login</h4>
+            <img src="https://knfhgytkfshdmfdieczx.supabase.co/storage/v1/object/public/pic/OXYFIGHT%20CENTER.png" alt="Logo" style="height: 60px;">
+            <h4 class="fw-bold text-primary mt-3">OXFIGHT CENTER</h4>
             <p class="text-muted small">ระบบจัดการข้อมูลและเช็คอินสำหรับเจ้าหน้าที่</p>
         </div>
         <form id="loginForm" onsubmit="handleLogin(event)">
@@ -49,7 +49,9 @@
 <div id="dashboardContainer" style="display: none;">
     <nav class="navbar navbar-dark shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <span class="navbar-brand fw-bold">Staff Dashboard - ระบบจัดการเจ้าหน้าที่</span>
+            <span class="navbar-brand fw-bold d-flex align-items-center">
+                <i class="fas fa-graduation-cap me-2 text-warning"></i> OXFIGHT CENTER - Staff Dashboard
+            </span>
             <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="handleLogout()"><i class="fas fa-sign-out-alt me-1"></i> ออกจากระบบ</button>
         </div>
     </nav>
@@ -92,7 +94,7 @@
             <div class="tab-pane fade" id="reportTab">
                 <div class="card p-3 shadow-sm border-0">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-primary">เลือกรอบที่ต้องการดู</label>
+                        <label class="form-label fw-bold text-primary">เลือกหลักสูตร / รอบที่ต้องการดูข้อมูล</label>
                         <select class="form-select bg-light" id="reportSessionSelect" onchange="loadParticipants()"><option value="">-- เลือกรอบอบรม --</option></select>
                     </div>
                     <div class="table-responsive">
@@ -113,10 +115,10 @@
 
             <div class="tab-pane fade" id="configTab">
                 <div class="card p-3 bg-light mb-4 shadow-sm">
-                    <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>เพิ่มรอบการอบรมใหม่</h6>
+                    <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>เปิดหลักสูตร / รอบการอบรมใหม่</h6>
                     <div class="row g-2">
                         <div class="col-md-4 col-12">
-                            <input type="text" id="newSessionName" class="form-control" placeholder="ชื่อการอบรม (โครงการ)">
+                            <input type="text" id="newSessionName" class="form-control" placeholder="ชื่อหลักสูตร (โครงการ)">
                         </div>
                         <div class="col-md-3 col-6">
                             <input type="date" id="newSessionDate" class="form-control" title="เลือกวันที่จัดอบรม">
@@ -167,11 +169,9 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuZmhneXRrZnNoZG1mZGllY3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDI4ODUsImV4cCI6MjA5NDQxODg4NX0.NnYLZB5agt5wjLs2vn62K5v9LnvO01BV3iCJhh-QRTE"; 
     const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbybDrwPwdjzpdrg_qTJ7Em8B4x-lFcPPCF871VE9siziL4xee_Aewotgn-CtY9_lNF-/exec";
 
-    // สั่งเปิด Client ผ่าน window.supabase เพื่อเลี่ยงบั๊ก SyntaxError ตัวแปรชนกัน
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let html5QrCode; let isProcessing = false;
 
-    // ระบบเฝ้าตรวจสถานะ Session สตาฟเพื่อตัดสิทธิ์แสดงหน้า Dashboard อัตโนมัติ
     window.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
         toggleAppView(session);
@@ -189,7 +189,6 @@
         }
     }
 
-    // --- ฟังก์ชันเข้าสู่ระบบระบบรักษาความปลอดภัย ---
     async function handleLogin(e) {
         e.preventDefault();
         const btn = document.getElementById('btnLogin');
@@ -207,7 +206,6 @@
 
     async function handleLogout() { await supabaseClient.auth.signOut(); }
 
-    // --- ฟังก์ชันควบคุมกล้องสแกนคิวอาร์โค้ด ---
     async function startScanner() {
         document.getElementById('actionResult').style.display = 'none';
         if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
@@ -237,7 +235,6 @@
         if(query) executeCheckInAction(query);
     }
 
-    // --- ตรรกะกระบวนการสแกนเช็คอิน/เช็คเอาท์หน้างาน ---
     async function executeCheckInAction(registrationId) {
         if(isProcessing) return;
         isProcessing = true; 
@@ -258,7 +255,6 @@
             const { error: updateError } = await supabaseClient.from('registrations').update(updateField).eq('id', registrationId);
             if (updateError) throw updateError;
 
-            // ส่งข้อมูลคู่ขนานเข้าสู่งานสคริปต์ของฝั่ง Google Sheets (แสตมป์คอลัมน์ H) เฉพาะจังหวะเช็คอินสำเร็จ
             if(selectedMode === "IN") {
                 const fullSessionString = `${user.sessions.name} (${user.sessions.date})`;
                 await fetch(GOOGLE_SHEET_API, {
@@ -280,7 +276,6 @@
         }
     }
 
-    // --- แท็บรายงานดึงรายชื่อผู้สมัคร ---
     async function loadSessionsForReport() {
         const sel = document.getElementById('reportSessionSelect');
         const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
@@ -305,9 +300,8 @@
         });
     }
 
-    // --- แท็บตั้งค่าข้อมูลหลักสูตรอบรมและโควตา ---
     async function loadConfig() {
-        const tbody = document.getElementById('configTableBody'); tbody.innerHTML = '<tr><td colspan="5" class="text-center">กำลังดึงตารางข้อมูลการตั้งค่า...</td></tr>';
+        const tbody = document.getElementById('configTableBody'); tbody.innerHTML = '<tr><td colspan="5" class="text-center">กำลังโหลดรายการ...</td></tr>';
         const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
         if (error) return;
         tbody.innerHTML = '';
@@ -343,15 +337,14 @@
         btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
         try {
-            // ระบบปฏิทินแปลงความเสถียร แยกค่าสตริงเพื่อแก้บั๊กเรื่องโซนเวลาคลาดเคลื่อน (Timezone Shift Drop Day)
-            const dateParts = rawDate.split("-"); // ["2026", "05", "16"]
+            const dateParts = rawDate.split("-"); 
             const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             
             const day = parseInt(dateParts[2]);
             const month = thaiMonths[parseInt(dateParts[1]) - 1];
-            const year = parseInt(dateParts[0]) + 543; // แปลง ค.ศ. คืนระนาบไทย พ.ศ.
+            const year = parseInt(dateParts[0]) + 543; 
             
-            const fullDateString = `${day} ${month} ${year} ${timePart}`; // โครงสร้างข้อความ: "16 พฤษภาคม 2569 รอบเช้า"
+            const fullDateString = `${day} ${month} ${year} ${timePart}`; 
 
             const { error } = await supabaseClient.from('sessions').insert([{ name, date: fullDateString, max_seats: parseInt(max), available_seats: parseInt(max) }]);
             if(error) throw error;
@@ -368,7 +361,6 @@
         }
     }
 
-    // --- ฟังก์ชันเสริม: แก้ไขชื่อโครงการอบรมผ่านหน้าบอร์ดสตาฟ ---
     async function renameSessionName(id, oldName) {
         const { value: newName } = await Swal.fire({
             title: 'แก้ไขชื่อการอบรม / โครงการ',

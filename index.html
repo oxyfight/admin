@@ -28,7 +28,7 @@
 <div id="authContainer">
     <div class="login-card">
         <div class="text-center mb-4">
-            <img src="https://knfhgytkfshdmfdieczx.supabase.co/storage/v1/object/public/pic/OXYFIGHT%20CENTER.png" alt="Logo" style="height: 60px;">
+            <img src="https://knfhgytkfshdmfdieczx.supabase.co/storage/v1/object/public/pic/OXYFIGHT_CENTER_LOGO_V2.png" alt="Logo" style="height: 60px;">
             <h4 class="fw-bold text-primary mt-3">OXFIGHT CENTER</h4>
             <p class="text-muted small">ระบบจัดการข้อมูลและเช็คอินสำหรับเจ้าหน้าที่</p>
         </div>
@@ -224,7 +224,7 @@
         }
     }
 
-    function onScanSuccess(decodedText) {
+    onScanSuccess = (decodedText) => {
         if(isProcessing) return;
         document.getElementById('searchInput').value = decodedText;
         stopScanner(); executeCheckInAction(decodedText);
@@ -314,7 +314,7 @@
                     <td class="text-center px-1"><input type="number" class="form-control form-control-sm text-center mx-auto" id="max_${s.id}" value="${s.max_seats}" style="width:75px" min="1"></td>
                     <td class="text-center fw-bold text-primary">${s.available_seats}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-warning text-dark mb-1 me-1" onclick="renameSessionName(${s.id}, '${s.name}')" title="แก้ไขชื่อการอบรม (โครงการ)"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-warning text-dark mb-1 me-1" onclick="editAdvancedSessionData(${s.id}, '${s.name}', '${s.date}')" title="แก้ไขชื่อ/วันที่/รอบเวลา"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-sm btn-primary mb-1 me-1" onclick="updateSeatsQuota(${s.id})" title="บันทึกจำนวนโควตาที่นั่ง"><i class="fas fa-save"></i></button> 
                         <button class="btn btn-sm btn-danger mb-1" onclick="deleteSessionData(${s.id}, '${s.name}')" title="ลบข้อมูลรอบอบรมถาวร"><i class="fas fa-trash"></i></button>
                     </td>
@@ -361,29 +361,80 @@
         }
     }
 
-    async function renameSessionName(id, oldName) {
-        const { value: newName } = await Swal.fire({
-            title: 'แก้ไขชื่อการอบรม / โครงการ',
-            input: 'text',
-            inputValue: oldName,
+    // --- 🔥 [ฟังก์ชันใหม่พรีเมียม] ขยายระบบแก้ไขให้ครอบคลุม ชื่อโครงการ, วันที่ปฏิทิน และรอบเวลา ---
+    async function editAdvancedSessionData(id, currentName, currentDateStr) {
+        // หาค่ารอบเวลาเดิมเพื่อนำไปเลือก Default ในดรอปดาวน์ให้สตาฟอัตโนมัติ
+        let defaultTime = "รอบเช้า";
+        if (currentDateStr.includes("รอบบ่าย")) defaultTime = "รอบบ่าย";
+        else if (currentDateStr.includes("เต็มวัน")) defaultTime = "เต็มวัน";
+
+        const { value: formValues } = await Swal.fire({
+            title: 'แก้ไขรายละเอียดรอบอบรม',
+            html: `
+                <div class="text-start mb-2"><label class="form-label fw-bold small text-muted">1. ชื่อโครงการ / หลักสูตร</label></div>
+                <input id="swal-name" class="form-control mb-3 fs-6" value="${currentName}" placeholder="ระบุชื่อหลักสูตร">
+                
+                <div class="text-start mb-1"><label class="form-label fw-bold small text-muted">2. วันที่อบรม (เลือกใหม่เมื่อต้องการเปลี่ยน)</label></div>
+                <input id="swal-date" type="date" class="form-control mb-1">
+                <div class="text-muted small text-start mb-3 style="font-size: 0.8rem;">📍 ค่าปัจจุบัน: ${currentDateStr}</div>
+                
+                <div class="text-start mb-2"><label class="form-label fw-bold small text-muted">3. รอบเวลาจัดอบรม</label></div>
+                <select id="swal-time" class="form-select mb-2">
+                    <option value="รอบเช้า" ${defaultTime === "รอบเช้า" ? "selected" : ""}>รอบเช้า (09:00 - 12:00 น.)</option>
+                    <option value="รอบบ่าย" ${defaultTime === "รอบบ่าย" ? "selected" : ""}>รอบบ่าย (13:00 - 16:00 น.)</option>
+                    <option value="เต็มวัน" ${defaultTime === "เต็มวัน" ? "selected" : ""}>เต็มวัน (09:00 - 16:00 น.)</option>
+                </select>
+            `,
+            focusConfirm: false,
             showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-save me-1"></i> บันทึกแก้ไข',
+            confirmButtonText: '<i class="fas fa-save me-1"></i> บันทึกข้อมูล',
             cancelButtonText: 'ยกเลิก',
-            inputValidator: (value) => { 
-                if (!value || value.trim() === '') return 'กรุณาระบุระบุมูลชื่อโครงการใหม่ด้วยครับ!';
-                if (value.trim() === oldName) return 'ชื่อโครงการใหม่ต้องแตกต่างไปจากชื่อเดิมครับ!';
+            preConfirm: () => {
+                return {
+                    name: document.getElementById('swal-name').value.trim(),
+                    rawDate: document.getElementById('swal-date').value,
+                    timePart: document.getElementById('swal-time').value
+                }
             }
         });
 
-        if (newName) {
+        if (formValues) {
+            if (!formValues.name) {
+                Swal.fire('ข้อมูลไม่ครบถ้วน', 'จำเป็นต้องระบุชื่อหลักสูตรการอบรมครับ', 'warning');
+                return;
+            }
+
+            let finalDateString = currentDateStr; 
+
+            if (formValues.rawDate) {
+                // กรณีเจ้าหน้าที่ระบุวันที่ผ่านปฏิทินป๊อปอัพใหม่ -> คำนวณรันฟอร์แมตภาษาไทยพ.ศ.
+                const dateParts = formValues.rawDate.split("-");
+                const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                const day = parseInt(dateParts[2]);
+                const month = thaiMonths[parseInt(dateParts[1]) - 1];
+                const year = parseInt(dateParts[0]) + 543;
+                finalDateString = `${day} ${month} ${year} ${formValues.timePart}`;
+            } else {
+                // กรณีใช้ วัน/เดือน/ปี เดิม แต่เจ้าหน้าที่กดสลับสวิตช์รอบเวลา -> คลีนคำเดิมออกแล้วต่อท้ายฟอร์แมตใหม่
+                let cleanOriginalDate = currentDateStr.replace("รอบเช้า", "").replace("รอบบ่าย", "").replace("เต็มวัน", "").trim();
+                finalDateString = `${cleanOriginalDate} ${formValues.timePart}`;
+            }
+
             try {
-                const { error } = await supabaseClient.from('sessions').update({ name: newName.trim() }).eq('id', id);
-                if(error) throw error;
-                
-                Swal.fire('อัปเดตสำเร็จ', 'แก้ไขชื่อการจัดฝึกอบรมในระบบเรียบร้อย', 'success');
-                loadConfig();
+                const { error } = await supabaseClient
+                    .from('sessions')
+                    .update({ 
+                        name: formValues.name, 
+                        date: finalDateString 
+                    })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                Swal.fire('อัปเดตสำเร็จ', 'แก้ไขข้อมูลรายละเอียดรอบการอบรมเรียบร้อย', 'success');
+                loadConfig(); // รีตารางสารสนเทศบอร์ด
             } catch (err) {
-                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถปรับเปลี่ยนชื่อได้เนื่องจากข้อมูลขัดข้องระบบหลัก', 'error');
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกการเปลี่ยนแปลงได้', 'error');
             }
         }
     }

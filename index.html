@@ -112,14 +112,15 @@
                 <div class="card p-3 bg-light mb-4">
                     <h6 class="fw-bold text-primary mb-3">เพิ่มรอบการอบรมใหม่</h6>
                     <div class="row g-2">
-                        <div class="col-md-7"><input type="text" id="newSessionName" class="form-control" placeholder="ชื่อรอบอบรม"></div>
-                        <div class="col-md-3"><input type="number" id="newSessionMax" class="form-control" placeholder="จำนวนที่นั่ง"></div>
-                        <div class="col-md-2"><button class="btn btn-success w-100 fw-bold" onclick="addNewSession()">เพิ่มรอบ</button></div>
+                        <div class="col-md-5"><input type="text" id="newSessionName" class="form-control" placeholder="ชื่อการอบรม (โครงการ)"></div>
+                        <div class="col-md-4"><input type="text" id="newSessionDate" class="form-control" placeholder="วันที่จัดอบรม (เช่น 15 ก.ค. 2569)"></div>
+                        <div class="col-md-2"><input type="number" id="newSessionMax" class="form-control" placeholder="จำนวนที่นั่ง"></div>
+                        <div class="col-md-1"><button class="btn btn-success w-100 fw-bold" onclick="addNewSession()">เพิ่ม</button></div>
                     </div>
                 </div>
                 <div class="card p-3 shadow-sm">
                     <table class="table align-middle">
-                        <thead class="table-light"><tr><th>รอบการอบรม</th><th width="100" class="text-center">สถานะ</th><th width="100" class="text-center">โควตา</th><th width="100" class="text-center">คงเหลือ</th><th width="120" class="text-center">จัดการ</th></tr></thead>
+                        <thead class="table-light"><tr><th>ชื่อการอบรม / วันที่จัด</th><th width="100" class="text-center">สถานะ</th><th width="100" class="text-center">โควตา</th><th width="100" class="text-center">คงเหลือ</th><th width="120" class="text-center">จัดการ</th></tr></thead>
                         <tbody id="configTableBody"></tbody>
                     </table>
                 </div>
@@ -206,7 +207,7 @@
         const resultDiv = document.getElementById('actionResult'); resultDiv.style.display = 'none';
 
         try {
-            const { data: user, error: fetchError } = await supabaseClient.from('registrations').select('*, sessions(name)').eq('id', registrationId).single();
+            const { data: user, error: fetchError } = await supabaseClient.from('registrations').select('*, sessions(name, date)').eq('id', registrationId).single();
             if (fetchError || !user) throw new Error("ไม่พบข้อมูลรหัสนี้ในระบบ");
 
             let updateField = selectedMode === "IN" ? { is_checked_in: true, checked_in_at: new Date() } : { is_checked_in: false, checked_in_at: null };
@@ -214,9 +215,10 @@
             if (updateError) throw updateError;
 
             if(selectedMode === "IN") {
+                const fullSessionString = `${user.sessions.name} (${user.sessions.date})`;
                 fetch(GOOGLE_SHEET_API, {
                     method: 'POST', mode: 'no-cors',
-                    body: new URLSearchParams({ action: "checkInSuccess", id: user.id, prefix: user.prefix, fullName: user.full_name, phone: user.phone, email: user.email, sessionName: user.sessions.name })
+                    body: new URLSearchParams({ action: "checkInSuccess", id: user.id, prefix: user.prefix, fullName: user.full_name, phone: user.phone, email: user.email, sessionName: fullSessionString })
                 });
             }
 
@@ -233,7 +235,7 @@
         const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
         if (error) return;
         sel.innerHTML = '<option value="">-- เลือกรอบอบรม --</option>';
-        sessions.forEach(s => { sel.innerHTML += `<option value="${s.id}">${s.name}</option>`; });
+        sessions.forEach(s => { sel.innerHTML += `<option value="${s.id}">${s.name} [${s.date}]</option>`; });
     }
 
     async function loadParticipants() {
@@ -259,15 +261,23 @@
         tbody.innerHTML = '';
         sessions.forEach(s => {
             const statusBadge = s.status === 'Active' ? `<span class="badge bg-success status-toggle" onclick="toggleSessionStatus(${s.id}, 'Closed')">เปิดรับ</span>` : `<span class="badge bg-secondary status-toggle" onclick="toggleSessionStatus(${s.id}, 'Active')">ปิดซ่อน</span>`;
-            tbody.innerHTML += `<tr><td><b>${s.name}</b></td><td class="text-center">${statusBadge}</td><td class="text-center px-1"><input type="number" class="form-control form-control-sm text-center mx-auto" id="max_${s.id}" value="${s.max_seats}" style="width:75px"></td><td class="text-center fw-bold text-primary">${s.available_seats}</td><td class="text-center"><button class="btn btn-sm btn-primary mb-1" onclick="updateSeatsQuota(${s.id})">เซฟ</button> <button class="btn btn-sm btn-danger" onclick="deleteSessionData(${s.id}, '${s.name}')">ลบ</button></td></tr>`;
+            tbody.innerHTML += `<tr><td><b>${s.name}</b><br><small class="text-muted">วันที่: ${s.date}</small></td><td class="text-center">${statusBadge}</td><td class="text-center px-1"><input type="number" class="form-control form-control-sm text-center mx-auto" id="max_${s.id}" value="${s.max_seats}" style="width:75px"></td><td class="text-center fw-bold text-primary">${s.available_seats}</td><td class="text-center"><button class="btn btn-sm btn-primary mb-1" onclick="updateSeatsQuota(${s.id})">เซฟ</button> <button class="btn btn-sm btn-danger" onclick="deleteSessionData(${s.id}, '${s.name}')">ลบ</button></td></tr>`;
         });
     }
 
     async function addNewSession() {
-        const name = document.getElementById('newSessionName').value.trim(); const max = document.getElementById('newSessionMax').value;
-        if(!name || !max) return;
-        const { error } = await supabaseClient.from('sessions').insert([{ name, max_seats: parseInt(max), available_seats: parseInt(max) }]);
-        if(!error) { document.getElementById('newSessionName').value = ''; document.getElementById('newSessionMax').value = ''; loadConfig(); }
+        const name = document.getElementById('newSessionName').value.trim(); 
+        const date = document.getElementById('newSessionDate').value.trim(); 
+        const max = document.getElementById('newSessionMax').value;
+        if(!name || !date || !max) return;
+        
+        const { error } = await supabaseClient.from('sessions').insert([{ name, date, max_seats: parseInt(max), available_seats: parseInt(max) }]);
+        if(!error) { 
+            document.getElementById('newSessionName').value = ''; 
+            document.getElementById('newSessionDate').value = ''; 
+            document.getElementById('newSessionMax').value = ''; 
+            loadConfig(); 
+        }
     }
 
     async function updateSeatsQuota(id) {

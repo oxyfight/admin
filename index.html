@@ -28,7 +28,7 @@
 <div id="authContainer">
     <div class="login-card">
         <div class="text-center mb-4">
-            <img src="https://knfhgytkfshdmfdieczx.supabase.co/storage/v1/object/public/pic/OXYFIGHT_CENTER_LOGO_V2.png" alt="Logo" style="height: 60px;">
+            <img src="https://knfhgytkfshdmfdieczx.supabase.co/storage/v1/object/public/pic/OXYFIGHT_CENTER.png" alt="Logo" style="height: 60px;">
             <h4 class="fw-bold text-primary mt-3">OXFIGHT CENTER</h4>
             <p class="text-muted small">ระบบจัดการข้อมูลและเช็คอินสำหรับเจ้าหน้าที่</p>
         </div>
@@ -50,7 +50,8 @@
     <nav class="navbar navbar-dark shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <span class="navbar-brand fw-bold d-flex align-items-center">
-                <i class="fas fa-graduation-cap me-2 text-warning"></i> OXFIGHT CENTER - Staff Dashboard
+                <img src="https://knfhgytkfshdmfdieczx.supabase.co/storage/v1/object/public/pic/OXYFIGHT_CENTER.png" alt="Logo" style="height: 35px; margin-right: 12px; filter: brightness(0) invert(1);"> 
+                OXFIGHT CENTER - Staff Dashboard
             </span>
             <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="handleLogout()"><i class="fas fa-sign-out-alt me-1"></i> ออกจากระบบ</button>
         </div>
@@ -361,12 +362,31 @@
         }
     }
 
-    // --- 🔥 [ฟังก์ชันใหม่พรีเมียม] ขยายระบบแก้ไขให้ครอบคลุม ชื่อโครงการ, วันที่ปฏิทิน และรอบเวลา ---
+    // --- 🔥 [ฟังก์ชันเวอร์ชันอัปเกรดล็อกวันที่อัตโนมัติ] แก้ไข ชื่อโครงการ, วันที่ปฏิทิน และรอบเวลาได้แม่นยำ ---
     async function editAdvancedSessionData(id, currentName, currentDateStr) {
-        // หาค่ารอบเวลาเดิมเพื่อนำไปเลือก Default ในดรอปดาวน์ให้สตาฟอัตโนมัติ
         let defaultTime = "รอบเช้า";
         if (currentDateStr.includes("รอบบ่าย")) defaultTime = "รอบบ่าย";
         else if (currentDateStr.includes("เต็มวัน")) defaultTime = "เต็มวัน";
+
+        // 🔄 กลไก Reverse Parser: แปลงสตริงภาษาไทยใน Database ย้อนกลับไปเป็นวันที่รูปแบบสากล (YYYY-MM-DD) เพื่อเติมลงปฏิทินรอไว้
+        let parsedCalendarDate = "";
+        try {
+            let dateParts = currentDateStr.split(" ");
+            if (dateParts.length >= 3) {
+                let dayStr = dateParts[0].padStart(2, '0');
+                let monthStr = dateParts[1];
+                let yearStr = dateParts[2];
+                
+                const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                let monthIdx = thaiMonths.indexOf(monthStr);
+                
+                if (monthIdx !== -1) {
+                    let monthNum = String(monthIdx + 1).padStart(2, '0');
+                    let systemYear = parseInt(yearStr) - 543; // แปลง พ.ศ. กลับเป็น ค.ศ. สากลสำหรับ Tag input type="date"
+                    parsedCalendarDate = `${systemYear}-${monthNum}-${dayStr}`;
+                }
+            }
+        } catch(e) { console.error("Error parsing date: ", e); }
 
         const { value: formValues } = await Swal.fire({
             title: 'แก้ไขรายละเอียดรอบอบรม',
@@ -374,9 +394,8 @@
                 <div class="text-start mb-2"><label class="form-label fw-bold small text-muted">1. ชื่อโครงการ / หลักสูตร</label></div>
                 <input id="swal-name" class="form-control mb-3 fs-6" value="${currentName}" placeholder="ระบุชื่อหลักสูตร">
                 
-                <div class="text-start mb-1"><label class="form-label fw-bold small text-muted">2. วันที่อบรม (เลือกใหม่เมื่อต้องการเปลี่ยน)</label></div>
-                <input id="swal-date" type="date" class="form-control mb-1">
-                <div class="text-muted small text-start mb-3 style="font-size: 0.8rem;">📍 ค่าปัจจุบัน: ${currentDateStr}</div>
+                <div class="text-start mb-1"><label class="form-label fw-bold small text-muted">2. วันที่จัดอบรม</label></div>
+                <input id="swal-date" type="date" class="form-control mb-3" value="${parsedCalendarDate}">
                 
                 <div class="text-start mb-2"><label class="form-label fw-bold small text-muted">3. รอบเวลาจัดอบรม</label></div>
                 <select id="swal-time" class="form-select mb-2">
@@ -399,25 +418,23 @@
         });
 
         if (formValues) {
-            if (!formValues.name) {
-                Swal.fire('ข้อมูลไม่ครบถ้วน', 'จำเป็นต้องระบุชื่อหลักสูตรการอบรมครับ', 'warning');
+            if (!formValues.name || !formValues.rawDate) {
+                Swal.fire('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุชื่อหลักสูตรและเลือกวันที่จัดอบรมให้ถูกต้องครับ', 'warning');
                 return;
             }
 
-            let finalDateString = currentDateStr; 
-
-            if (formValues.rawDate) {
-                // กรณีเจ้าหน้าที่ระบุวันที่ผ่านปฏิทินป๊อปอัพใหม่ -> คำนวณรันฟอร์แมตภาษาไทยพ.ศ.
+            let finalDateString = ""; 
+            try {
+                // คำนวณประกอบฟอร์แมตภาษาไทยชุดใหม่
                 const dateParts = formValues.rawDate.split("-");
                 const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
                 const day = parseInt(dateParts[2]);
                 const month = thaiMonths[parseInt(dateParts[1]) - 1];
                 const year = parseInt(dateParts[0]) + 543;
                 finalDateString = `${day} ${month} ${year} ${formValues.timePart}`;
-            } else {
-                // กรณีใช้ วัน/เดือน/ปี เดิม แต่เจ้าหน้าที่กดสลับสวิตช์รอบเวลา -> คลีนคำเดิมออกแล้วต่อท้ายฟอร์แมตใหม่
-                let cleanOriginalDate = currentDateStr.replace("รอบเช้า", "").replace("รอบบ่าย", "").replace("เต็มวัน", "").trim();
-                finalDateString = `${cleanOriginalDate} ${formValues.timePart}`;
+            } catch(err) {
+                Swal.fire('ข้อผิดพลาด', 'รูปแบบวันที่ที่เลือกไม่ถูกต้อง', 'error');
+                return;
             }
 
             try {
@@ -432,9 +449,9 @@
                 if (error) throw error;
 
                 Swal.fire('อัปเดตสำเร็จ', 'แก้ไขข้อมูลรายละเอียดรอบการอบรมเรียบร้อย', 'success');
-                loadConfig(); // รีตารางสารสนเทศบอร์ด
+                loadConfig(); 
             } catch (err) {
-                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกการเปลี่ยนแปลงได้', 'error');
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกการเปลี่ยนแปลงเข้าสู่ฐานข้อมูลได้', 'error');
             }
         }
     }

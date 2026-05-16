@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard - First Aid & CPR 2026</title>
+    <title>Staff Dashboard - OXFIGHT CENTER</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,6 +30,7 @@
         <div class="text-center mb-4">
             <img src="https://cppqbctiybszcneqawjw.supabase.co/storage/v1/object/public/PIC/Logo-gold.png" alt="Logo" style="height: 60px;">
             <h4 class="fw-bold text-primary mt-3">Staff Login</h4>
+            <p class="text-muted small">ระบบจัดการข้อมูลและเช็คอินสำหรับเจ้าหน้าที่</p>
         </div>
         <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="mb-3">
@@ -49,7 +50,7 @@
     <nav class="navbar navbar-dark shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <span class="navbar-brand fw-bold">Staff Dashboard - ระบบจัดการเจ้าหน้าที่</span>
-            <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="handleLogout()">ออกจากระบบ</button>
+            <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="handleLogout()"><i class="fas fa-sign-out-alt me-1"></i> ออกจากระบบ</button>
         </div>
     </nav>
 
@@ -70,10 +71,10 @@
                         <label class="btn btn-outline-warning py-2 fw-bold" for="modeOut">โหมดเช็คเอาท์</label>
                     </div>
                     <div class="text-center mb-3" id="cameraStartSection">
-                        <button class="btn btn-primary btn-lg w-100 fw-bold" onclick="startScanner()"><i class="fas fa-camera me-2"></i> เปิดกล้องสแกน QR</button>
+                        <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm py-3" onclick="startScanner()"><i class="fas fa-camera me-2"></i> เปิดกล้องสแกน QR</button>
                     </div>
                     <div id="scannerContainer" style="display: none;" class="mb-3">
-                        <button class="btn btn-danger w-100 fw-bold mb-3" onclick="stopScanner()">ปิดกล้อง</button>
+                        <button class="btn btn-danger w-100 fw-bold mb-3 shadow-sm" onclick="stopScanner()">ปิดกล้อง</button>
                         <div id="reader"></div>
                     </div>
                     <div id="actionResult" style="display: none;"></div>
@@ -81,7 +82,7 @@
                 <div class="card p-4 shadow-sm">
                     <h6 class="fw-bold text-muted mb-3">พิมพ์รหัสด้วยตัวเอง (Manual)</h6>
                     <div class="input-group">
-                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light" placeholder="กรอกรหัส 6 หลัก">
+                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light" placeholder="กรอกรหัสลงทะเบียน 6 หลัก">
                         <button class="btn btn-primary px-4" id="btnManualSubmit" onclick="processManualInput()"><i class="fas fa-paper-plane"></i></button>
                     </div>
                     <div class="loader" id="searchLoader"><div class="spinner-border text-primary"></div></div>
@@ -111,8 +112,8 @@
             </div>
 
             <div class="tab-pane fade" id="configTab">
-                <div class="card p-3 bg-light mb-4">
-                    <h6 class="fw-bold text-primary mb-3">เพิ่มรอบการอบรมใหม่</h6>
+                <div class="card p-3 bg-light mb-4 shadow-sm">
+                    <h6 class="fw-bold text-primary mb-3"><i class="fas fa-plus-circle me-2"></i>เพิ่มรอบการอบรมใหม่</h6>
                     <div class="row g-2">
                         <div class="col-md-4 col-12">
                             <input type="text" id="newSessionName" class="form-control" placeholder="ชื่อการอบรม (โครงการ)">
@@ -138,7 +139,15 @@
                 <div class="card p-3 shadow-sm">
                     <div class="table-responsive">
                         <table class="table align-middle">
-                            <thead class="table-light"><tr><th>ชื่อการอบรม / วันที่จัด</th><th width="100" class="text-center">สถานะ</th><th width="100" class="text-center">โควตา</th><th width="100" class="text-center">คงเหลือ</th><th width="120" class="text-center">จัดการ</th></tr></thead>
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ชื่อการอบรม / วันที่จัด</th>
+                                    <th width="100" class="text-center">สถานะ</th>
+                                    <th width="100" class="text-center">โควตา</th>
+                                    <th width="100" class="text-center">คงเหลือ</th>
+                                    <th width="150" class="text-center">จัดการ</th>
+                                </tr>
+                            </thead>
                             <tbody id="configTableBody"></tbody>
                         </table>
                     </div>
@@ -158,9 +167,11 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuZmhneXRrZnNoZG1mZGllY3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDI4ODUsImV4cCI6MjA5NDQxODg4NX0.NnYLZB5agt5wjLs2vn62K5v9LnvO01BV3iCJhh-QRTE"; 
     const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbybDrwPwdjzpdrg_qTJ7Em8B4x-lFcPPCF871VE9siziL4xee_Aewotgn-CtY9_lNF-/exec";
 
+    // สั่งเปิด Client ผ่าน window.supabase เพื่อเลี่ยงบั๊ก SyntaxError ตัวแปรชนกัน
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let html5QrCode; let isProcessing = false;
 
+    // ระบบเฝ้าตรวจสถานะ Session สตาฟเพื่อตัดสิทธิ์แสดงหน้า Dashboard อัตโนมัติ
     window.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
         toggleAppView(session);
@@ -178,30 +189,32 @@
         }
     }
 
+    // --- ฟังก์ชันเข้าสู่ระบบระบบรักษาความปลอดภัย ---
     async function handleLogin(e) {
         e.preventDefault();
         const btn = document.getElementById('btnLogin');
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
         
-        btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> เข้าระบบ...';
+        btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเข้าระบบ...';
 
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) { 
-            Swal.fire('ล็อกอินล้มเหลว', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'error'); 
+            Swal.fire('ล็อกอินล้มเหลว', 'อีเมลหรือรหัสผ่านเจ้าหน้าที่ไม่ถูกต้อง', 'error'); 
             btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ'; 
         }
     }
 
     async function handleLogout() { await supabaseClient.auth.signOut(); }
 
+    // --- ฟังก์ชันควบคุมกล้องสแกนคิวอาร์โค้ด ---
     async function startScanner() {
         document.getElementById('actionResult').style.display = 'none';
         if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
         document.getElementById('cameraStartSection').style.display = 'none';
         document.getElementById('scannerContainer').style.display = 'block';
         try { await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 260 }, onScanSuccess); } 
-        catch (err) { Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเข้าถึงกล้องถ่ายรูปได้', 'warning'); stopScanner(); }
+        catch (err) { Swal.fire('ข้อผิดพลาด', 'ระบบไม่สามารถเข้าถึงโมดูลกล้องถ่ายรูปได้', 'warning'); stopScanner(); }
     }
 
     function stopScanner() {
@@ -224,6 +237,7 @@
         if(query) executeCheckInAction(query);
     }
 
+    // --- ตรรกะกระบวนการสแกนเช็คอิน/เช็คเอาท์หน้างาน ---
     async function executeCheckInAction(registrationId) {
         if(isProcessing) return;
         isProcessing = true; 
@@ -238,12 +252,13 @@
 
         try {
             const { data: user, error: fetchError } = await supabaseClient.from('registrations').select('*, sessions(name, date)').eq('id', registrationId).single();
-            if (fetchError || !user) throw new Error("ไม่พบข้อมูลรหัสลงทะเบียนนี้ในระบบ");
+            if (fetchError || !user) throw new Error("ไม่พบข้อมูลรหัสลงทะเบียนนี้ในระบบควบคุม");
 
             let updateField = selectedMode === "IN" ? { is_checked_in: true, checked_in_at: new Date() } : { is_checked_in: false, checked_in_at: null };
             const { error: updateError } = await supabaseClient.from('registrations').update(updateField).eq('id', registrationId);
             if (updateError) throw updateError;
 
+            // ส่งข้อมูลคู่ขนานเข้าสู่งานสคริปต์ของฝั่ง Google Sheets (แสตมป์คอลัมน์ H) เฉพาะจังหวะเช็คอินสำเร็จ
             if(selectedMode === "IN") {
                 const fullSessionString = `${user.sessions.name} (${user.sessions.date})`;
                 await fetch(GOOGLE_SHEET_API, {
@@ -253,7 +268,7 @@
             }
 
             resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `<div class="alert alert-success text-center fw-bold fs-5 shadow-sm py-3 mb-0"><i class="fas fa-check-circle me-2"></i>${selectedMode === "IN" ? 'เช็คอินสำเร็จ' : 'ยกเลิกเช็คอินสำเร็จ'}!<br>คุณ ${user.prefix}${user.full_name}</div>`;
+            resultDiv.innerHTML = `<div class="alert alert-success text-center fw-bold fs-5 shadow-sm py-3 mb-0"><i class="fas fa-check-circle me-2"></i>${selectedMode === "IN" ? 'เช็คอินสแกนเข้างานสำเร็จ' : 'ยกเลิกสถานะเช็คอินเรียบร้อย'}!<br>คุณ ${user.prefix}${user.full_name}</div>`;
         } catch (e) {
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = `<div class="alert alert-danger text-center fw-bold shadow-sm py-3 mb-0"><i class="fas fa-times-circle me-2"></i>${e.message}</div>`;
@@ -265,6 +280,7 @@
         }
     }
 
+    // --- แท็บรายงานดึงรายชื่อผู้สมัคร ---
     async function loadSessionsForReport() {
         const sel = document.getElementById('reportSessionSelect');
         const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
@@ -275,28 +291,40 @@
 
     async function loadParticipants() {
         const sessionId = document.getElementById('reportSessionSelect').value; if(!sessionId) return;
-        const tbody = document.getElementById('participantList'); tbody.innerHTML = '<tr><td colspan="4" class="text-center">กำลังโหลดรายชื่อ...</td></tr>';
+        const tbody = document.getElementById('participantList'); tbody.innerHTML = '<tr><td colspan="4" class="text-center">กำลังโหลดข้อมูลรายชื่อ...</td></tr>';
         
         const { data: list, error } = await supabaseClient.from('registrations').select('*').eq('session_id', sessionId).order('created_at', { ascending: true });
-        if(error) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">ข้อผิดพลาดในการโหลดข้อมูล</td></tr>'; return; }
+        if(error) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">เกิดข้อผิดพลาดภายในหมวดค้นหาข้อมูล</td></tr>'; return; }
         
         tbody.innerHTML = '';
-        if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">ยังไม่มีรายชื่อผู้สมัครในรอบนี้</td></tr>'; return; }
+        if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">รอบการอบรมนี้ยังไม่มีผู้ลงทะเบียนเข้ามาในฐานระบบ</td></tr>'; return; }
 
         list.forEach((row, index) => {
-            const status = row.is_checked_in ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>มาแล้ว</span>' : '<span class="badge bg-secondary">ยังไม่มา</span>';
+            const status = row.is_checked_in ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>รายงานตัวแล้ว</span>' : '<span class="badge bg-secondary">ยังไม่แสดงตัว</span>';
             tbody.innerHTML += `<tr><td class="text-center fw-bold text-muted">${index + 1}</td><td><b>${row.prefix}${row.full_name}</b></td><td class="text-center"><code>${row.id}</code></td><td class="text-center">${status}</td></tr>`;
         });
     }
 
+    // --- แท็บตั้งค่าข้อมูลหลักสูตรอบรมและโควตา ---
     async function loadConfig() {
-        const tbody = document.getElementById('configTableBody'); tbody.innerHTML = '<tr><td colspan="5" class="text-center">กำลังโหลดรายการ...</td></tr>';
+        const tbody = document.getElementById('configTableBody'); tbody.innerHTML = '<tr><td colspan="5" class="text-center">กำลังดึงตารางข้อมูลการตั้งค่า...</td></tr>';
         const { data: sessions, error } = await supabaseClient.from('sessions').select('*').order('id', { ascending: true });
         if (error) return;
         tbody.innerHTML = '';
         sessions.forEach(s => {
-            const statusBadge = s.status === 'Active' ? `<span class="badge bg-success status-toggle" onclick="toggleSessionStatus(${s.id}, 'Closed')" title="คลิกเพื่อปิดรับ">เปิดรับ</span>` : `<span class="badge bg-secondary status-toggle" onclick="toggleSessionStatus(${s.id}, 'Active')" title="คลิกเพื่อเปิดรับ">ปิดซ่อน</span>`;
-            tbody.innerHTML += `<tr><td><b>${s.name}</b><br><small class="text-primary fw-bold">📅 ${s.date}</small></td><td class="text-center">${statusBadge}</td><td class="text-center px-1"><input type="number" class="form-control form-control-sm text-center mx-auto" id="max_${s.id}" value="${s.max_seats}" style="width:75px" min="1"></td><td class="text-center fw-bold text-primary">${s.available_seats}</td><td class="text-center"><button class="btn btn-sm btn-primary mb-1 me-1" onclick="updateSeatsQuota(${s.id})"><i class="fas fa-save"></i></button> <button class="btn btn-sm btn-danger mb-1" onclick="deleteSessionData(${s.id}, '${s.name}')"><i class="fas fa-trash"></i></button></td></tr>`;
+            const statusBadge = s.status === 'Active' ? `<span class="badge bg-success status-toggle" onclick="toggleSessionStatus(${s.id}, 'Closed')" title="คลิกเพื่อปิดล็อกฟอร์มชั่วคราว">เปิดรับ</span>` : `<span class="badge bg-secondary status-toggle" onclick="toggleSessionStatus(${s.id}, 'Active')" title="คลิกเพื่อเปิดรับเปิดระบบหน้าเว็บบอร์ด">ปิดซ่อน</span>`;
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${s.name}</b><br><small class="text-primary fw-bold"><i class="far fa-calendar-alt me-1"></i> ${s.date}</small></td>
+                    <td class="text-center">${statusBadge}</td>
+                    <td class="text-center px-1"><input type="number" class="form-control form-control-sm text-center mx-auto" id="max_${s.id}" value="${s.max_seats}" style="width:75px" min="1"></td>
+                    <td class="text-center fw-bold text-primary">${s.available_seats}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-warning text-dark mb-1 me-1" onclick="renameSessionName(${s.id}, '${s.name}')" title="แก้ไขชื่อการอบรม (โครงการ)"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-primary mb-1 me-1" onclick="updateSeatsQuota(${s.id})" title="บันทึกจำนวนโควตาที่นั่ง"><i class="fas fa-save"></i></button> 
+                        <button class="btn btn-sm btn-danger mb-1" onclick="deleteSessionData(${s.id}, '${s.name}')" title="ลบข้อมูลรอบอบรมถาวร"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
         });
     }
 
@@ -308,37 +336,69 @@
         const btn = document.getElementById('btnCreateSession');
         
         if(!name || !rawDate || !max || parseInt(max) <= 0) { 
-            Swal.fire('ข้อมูลไม่ครบถ้วน', 'กรุณากรอกชื่อโครงการ เลือกวันที่ และจำนวนที่นั่งให้ถูกต้องครับ', 'warning'); 
+            Swal.fire('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุชื่อโครงการหลักสูตร เลือกวันที่จัดปฏิทิน และจำนวนที่นั่งเปิดรับสมัครให้ครบถ้วนด้วยครับ', 'warning'); 
             return; 
         }
         
         btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
         try {
-            // 🔄 ระบบแปลงวันที่ค.ศ. สากลจากปฏิทิน -> วันที่ภาษาไทย พ.ศ. คุมฟอร์แมตอัตโนมัติ
-            const dateObj = new Date(rawDate);
+            // ระบบปฏิทินแปลงความเสถียร แยกค่าสตริงเพื่อแก้บั๊กเรื่องโซนเวลาคลาดเคลื่อน (Timezone Shift Drop Day)
+            const dateParts = rawDate.split("-"); // ["2026", "05", "16"]
             const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-            const thaiDateFormat = `${dateObj.getDate()} ${thaiMonths[dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
-            const fullDateString = `${thaiDateFormat} ${timePart}`; // ผลลัพธ์: "15 กรกฎาคม 2569 รอบเช้า"
+            
+            const day = parseInt(dateParts[2]);
+            const month = thaiMonths[parseInt(dateParts[1]) - 1];
+            const year = parseInt(dateParts[0]) + 543; // แปลง ค.ศ. คืนระนาบไทย พ.ศ.
+            
+            const fullDateString = `${day} ${month} ${year} ${timePart}`; // โครงสร้างข้อความ: "16 พฤษภาคม 2569 รอบเช้า"
 
             const { error } = await supabaseClient.from('sessions').insert([{ name, date: fullDateString, max_seats: parseInt(max), available_seats: parseInt(max) }]);
             if(error) throw error;
 
-            Swal.fire('สำเร็จ', 'ทำการเปิดรอบการอบรมและโควตาเรียบร้อย', 'success');
+            Swal.fire('สำเร็จ', 'ทำการเปิดระบบรอบฝึกอบรมหลักสูตรและจัดโควตาที่นั่งเรียบร้อย', 'success');
             document.getElementById('newSessionName').value = ''; 
             document.getElementById('newSessionDate').value = ''; 
             document.getElementById('newSessionMax').value = ''; 
             loadConfig(); 
         } catch (err) {
-            Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเพิ่มรอบได้ กรุณาตรวจสอบสิทธิ์ระบบ', 'error');
+            Swal.fire('ข้อผิดพลาด', 'ล้มเหลวในการเชื่อมต่อเซิร์ฟเวอร์ยิงฐานข้อมูล', 'error');
         } finally {
             btn.disabled = false; btn.innerHTML = 'เพิ่ม';
         }
     }
 
+    // --- ฟังก์ชันเสริม: แก้ไขชื่อโครงการอบรมผ่านหน้าบอร์ดสตาฟ ---
+    async function renameSessionName(id, oldName) {
+        const { value: newName } = await Swal.fire({
+            title: 'แก้ไขชื่อการอบรม / โครงการ',
+            input: 'text',
+            inputValue: oldName,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-save me-1"></i> บันทึกแก้ไข',
+            cancelButtonText: 'ยกเลิก',
+            inputValidator: (value) => { 
+                if (!value || value.trim() === '') return 'กรุณาระบุระบุมูลชื่อโครงการใหม่ด้วยครับ!';
+                if (value.trim() === oldName) return 'ชื่อโครงการใหม่ต้องแตกต่างไปจากชื่อเดิมครับ!';
+            }
+        });
+
+        if (newName) {
+            try {
+                const { error } = await supabaseClient.from('sessions').update({ name: newName.trim() }).eq('id', id);
+                if(error) throw error;
+                
+                Swal.fire('อัปเดตสำเร็จ', 'แก้ไขชื่อการจัดฝึกอบรมในระบบเรียบร้อย', 'success');
+                loadConfig();
+            } catch (err) {
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถปรับเปลี่ยนชื่อได้เนื่องจากข้อมูลขัดข้องระบบหลัก', 'error');
+            }
+        }
+    }
+
     async function updateSeatsQuota(id) {
         const newMax = parseInt(document.getElementById(`max_${id}`).value);
-        if(isNaN(newMax) || newMax <= 0) { Swal.fire('ข้อมูลไม่ถูกต้อง', 'จำนวนที่นั่งต้องมากกว่า 0', 'warning'); return; }
+        if(isNaN(newMax) || newMax <= 0) { Swal.fire('ข้อมูลไม่ถูกต้อง', 'จำนวนการกำหนดที่นั่งโควตาต้องมากกว่าศูนย์', 'warning'); return; }
 
         try {
             const { count, error: countErr } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('session_id', id);
@@ -348,10 +408,10 @@
             const { error } = await supabaseClient.from('sessions').update({ max_seats: newMax, available_seats: newAvailable }).eq('id', id);
             if(error) throw error;
 
-            Swal.fire('สำเร็จ', 'อัปเดตจำนวนและโควตาที่นั่งใหม่เรียบร้อย', 'success');
+            Swal.fire('สำเร็จ', 'ปรับปรุงจัดยอดระดับโควตาและคำนวณที่นั่งว่างใหม่เสร็จสิ้น', 'success');
             loadConfig();
         } catch(e) {
-            Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+            Swal.fire('ข้อผิดพลาด', 'ระบบปลายทางปฏิเสธการอัปเดตไฟล์ข้อมูล', 'error');
         }
     }
 
@@ -362,13 +422,13 @@
     
     async function deleteSessionData(id, name) { 
         const res = await Swal.fire({ 
-            title: 'ยืนยันการลบ?', 
-            html: `ต้องการลบรอบ <b>"${name}"</b> ใช่หรือไม่?<br><small class="text-danger">⚠️ รายชื่อผู้สมัครทั้งหมดในรอบนี้จะถูกลบถาวร!</small>`, 
+            title: 'ยืนยันการลบรอบคิวงาน?', 
+            html: `คุณต้องการลบรายการข้อมูล <b>"${name}"</b> ใช่หรือไม่?<br><small class="text-danger">⚠️ ข้อควรระวัง: รายชื่อผู้สมัครเข้าเรียนทั้งหมดในรอบนี้จะถูกทำลายถาวร!</small>`, 
             icon: 'warning', 
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            confirmButtonText: 'ยืนยันลบ',
-            cancelButtonText: 'ยกเลิก'
+            confirmButtonText: 'ยืนยันทำลาย',
+            cancelButtonText: 'ยกเลิกข้ามทำรายการ'
         }); 
         if (res.isConfirmed) { 
             await supabaseClient.from('sessions').delete().eq('id', id); 
